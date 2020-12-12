@@ -1,52 +1,53 @@
-import cv2
 import pyautogui
-from screen_search import *
 import os
-import pytesseract
-from utils import beep
 import random
-
-IMG_CHASSE_TRESOR = ".\\res\\CHASSE.png"
-IMG_DEPART = ".\\res\\DEPART.png"
-IMG_HINT = ".\\res\\HINT.png"
-IMG_LEFT_ARROW = ".\\res\\LEFT_ARROW.png"
-IMG_RIGHT_ARROW = ".\\res\\RIGHT_ARROW.png"
-IMG_TOP_ARROW = ".\\res\\TOP_ARROW.png"
-IMG_BOTTOM_ARROW = ".\\res\\BOTTOM_ARROW.png"
-IMG_NEXT = ".\\res\\NEXT.png"
-IMG_FIGHT = ".\\res\\FIGHT.png"
-TMP_SCREENSHOT = ".\\res\\TMP.png"
-TMP_IMG_MAIN_REGION = ".\\res\\TMP_MAIN_REGION.png"
+from screen_search import *
+from utils import beep
+from imgmanager import imgToText
+import constantes
 
 RANDOM_RANGE = 150
-
-def alttab():
-    pyautogui.hotkey('alt','tab')
 
 def click(pos):
     pyautogui.click(pos)
 
-def takeScreenshot(region, path=TMP_SCREENSHOT):
+def doubleclick(pos):
+    moveMouse(pos)
+    pyautogui.click(clicks=2, interval=0.25)
+
+def takeScreenshot(region, path=constantes.TMP_SCREENSHOT):
     screenshot = pyautogui.screenshot(region=region)
     screenshot.save(path)
 
-def locateOnScreen(img, region):
+def locateOnScreen(img, region=None):
     return pyautogui.locateOnScreen(img, region=region, grayscale=True, confidence=0.8) 
 
+def moveMouse(pos):
+    pyautogui.moveTo(pos)
+
+def getCurrentPos():
+    pos = (15,68,86,31)
+    takeScreenshot(pos)
+    print(imgToText(constantes.TMP_SCREENSHOT))
+    x = imgToText(constantes.TMP_SCREENSHOT).split(',')[0]
+    y = imgToText(constantes.TMP_SCREENSHOT).split(',')[1]
+    print(x,y)
+    return (x,y)
+
 def getMainRegion():
-    pos = pyautogui.locateCenterOnScreen(IMG_CHASSE_TRESOR)
+    pos = pyautogui.locateCenterOnScreen(constantes.IMG_CHASSE_TRESOR)
     if pos != None:
         left = pos[0] - 150
         top = pos[1] - 10
         width = 320
         heigth = pyautogui.size()[1] - top
         region = (left, top, width, heigth)
-        takeScreenshot(region, TMP_IMG_MAIN_REGION)
+        takeScreenshot(region, constantes.TMP_IMG_MAIN_REGION)
         
         return region
 
 def getPosFlag(main_region):
-    pos = locateOnScreen(IMG_HINT, main_region)
+    pos = locateOnScreen(constantes.IMG_HINT, main_region)
     if pos != None:
         return pos
 
@@ -62,13 +63,13 @@ def getCurrentRegion(main_region, pos_hint):
     return region
 
 def findDirection(region):
-    if locateOnScreen(IMG_RIGHT_ARROW, region) != None:
+    if locateOnScreen(constantes.IMG_RIGHT_ARROW, region) != None:
         return 'right'
-    if locateOnScreen(IMG_LEFT_ARROW, region) != None:
+    if locateOnScreen(constantes.IMG_LEFT_ARROW, region) != None:
         return 'left'
-    if locateOnScreen(IMG_TOP_ARROW, region) != None:
+    if locateOnScreen(constantes.IMG_TOP_ARROW, region) != None:
         return 'top'
-    if locateOnScreen(IMG_BOTTOM_ARROW, region) != None:
+    if locateOnScreen(constantes.IMG_BOTTOM_ARROW, region) != None:
         return 'bottom'
 
 def getHint(pos_hint):
@@ -79,14 +80,7 @@ def getHint(pos_hint):
     region = (left, top, width, height)
 
     takeScreenshot(region)
-    return imgToText(TMP_SCREENSHOT)
-
-def imgToText(img):
-    img = cv2.imread(img)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    text = pytesseract.image_to_string(img,lang="fra")
-
-    return text.strip().replace('.','')
+    return imgToText(constantes.TMP_SCREENSHOT)
 
 def getRightPos():
     screen = pyautogui.size()
@@ -109,13 +103,13 @@ def validFlag(pos):
     pyautogui.click(pos[0] + 12, pos[1] + 12)
 
 def isTimeToFight(region):
-    pos = locateOnScreen(IMG_FIGHT, region=region)
+    pos = locateOnScreen(constantes.IMG_FIGHT, region=region)
     if pos != None:
         return True
     return False
 
 def goTonextStep(region):
-    pos = locateOnScreen(IMG_NEXT, region=region)
+    pos = locateOnScreen(constantes.IMG_NEXT, region=region)
     if pos != None:
         print("in")
         pyautogui.click(pos[0] + 5, pos[1] + 5)
@@ -127,3 +121,55 @@ def getBworkPos():
 def getDragoeufsToDesacrees():
     screen = pyautogui.size()
     return (screen.width * 0.2, screen.height * 0.5)
+
+def getBworkPosOut():
+    screen = pyautogui.size()
+    return (screen.width * 0.60, screen.height * 0.4)
+
+def getPosPopo():
+    screen = pyautogui.size()
+    left = screen.width * 0.2
+    top = screen.height * 0.85
+    width = screen.width * 0.63 
+    height = screen.height * 0.1
+    region = (int(left), int(top), int(width), int(height))
+
+    pos = pyautogui.locateCenterOnScreen(constantes.IMG_POPO, region=region)
+    return pos
+
+def giveupHunt(region):
+    pos = (region[0] + region[2] - 20, region[1] + 40)
+    click(pos)
+    time.sleep(0.5)
+    pos = pyautogui.locateCenterOnScreen(constantes.IMG_CANCEL_VALIDATION)
+    pyautogui.click(pos)
+    time.sleep(0.5)
+    if locateOnScreen(constantes.IMG_CHASSE_TRESOR) != None:
+        return -1
+
+def clickInsideMalleDoor():
+    screen = pyautogui.size()
+    pos = (screen.width * 0.5, screen.height * 0.5)
+    pyautogui.click(pos)
+
+def clickOnMalleSecondMap():
+    screen = pyautogui.size()
+    pos = (screen.width * 0.74, screen.height * 0.44)
+    pyautogui.click(pos)
+
+def clickOnNewMissions():
+    screen = pyautogui.size()
+    pos = (screen.width * 0.55, screen.height * 0.45)
+    pyautogui.click(pos)
+
+def clickOnLevelMission():
+    screen = pyautogui.size()
+    pos = (screen.width * 0.6, screen.height * 0.48)
+    pyautogui.click(pos)
+
+def getOut():
+    screen = pyautogui.size()
+    pos = (screen.width * 0.19, screen.height * 0.77)
+    pyautogui.click(pos)
+    
+    
