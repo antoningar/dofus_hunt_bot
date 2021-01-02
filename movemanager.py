@@ -1,34 +1,53 @@
 import screenmanager
 import time
 import keyboardmanager
+import constantes
 
-def getClickPos(direction, current_pos):
+def getClickPos(direction, current_pos=['0','0']):
     if direction == 'right':
         if current_pos == [-2,8]:
             pos = screenmanager.getBworkPosOut()
+            current_pos = [current_pos[0] + 1, current_pos[1]]
+        elif current_pos == [7,-27]:
+            pos = screenmanager.getPosGoToCalanques()
+            current_pos = [current_pos[0] + 1, current_pos[1]]
+        elif current_pos == [-81,-37]:
+            pos = screenmanager.getRightPos()
+            current_pos = [current_pos[0] + 1, current_pos[1]-1]
+        elif current_pos == [-8,26]:
+            pos = screenmanager.getDesacreesToDragoeuf()
+            current_pos = [current_pos[0] + 1, current_pos[1]]
+        elif current_pos == [-20,42]:
+            pos = screenmanager.getHighRightPos()
+            current_pos = [current_pos[0] + 1, current_pos[1]]
         else:
             pos = screenmanager.getRightPos()
-        current_pos = (current_pos[0] + 1, current_pos[1])
+            current_pos = [current_pos[0] + 1, current_pos[1]]
 
     if direction == 'left':
         if current_pos == [-1,8]:
             pos = screenmanager.getBworkPos()
+            current_pos = [current_pos[0] - 1, current_pos[1]]
         elif current_pos == [-7,26]:
             pos = screenmanager.getDragoeufsToDesacrees()
+            current_pos = [current_pos[0] - 1, current_pos[1]]
         elif current_pos == [4,-8]:
             pos = screenmanager.getLeftPos()
-            current_pos = (current_pos[0], current_pos[1] - 1)    
+            current_pos = [current_pos[0], current_pos[1] - 1]
+        elif current_pos == [8,-4] or current_pos == [13,-1] :
+            pos = screenmanager.getLeftPosMadrestam(current_pos)
+            current_pos = [current_pos[0] - 1, current_pos[1]]      
         else:
             pos = screenmanager.getLeftPos()
-        current_pos = (current_pos[0] - 1, current_pos[1])
+            current_pos = [current_pos[0] - 1, current_pos[1]]
 
     if direction == 'top':
         pos = screenmanager.getTopPos()
-        current_pos = (current_pos[0], current_pos[1] - 1)
+        current_pos = [current_pos[0], current_pos[1] - 1]
 
     if direction == 'bottom':
         pos = screenmanager.getBottomPos()
-        current_pos = (current_pos[0], current_pos[1] + 1)
+        current_pos = [current_pos[0], current_pos[1] + 1]
 
     return pos, current_pos
 
@@ -49,6 +68,38 @@ def moveClassic(direction, length, pos):
         time.sleep(5)
     return pos
 
+def waitUntilImgPop(img):
+    while not screenmanager.locateOnScreen(img):
+        time.sleep(1)
+
+def goToMalle():
+    click_pos, pos = getClickPos('right')
+    screenmanager.click(click_pos)
+    waitUntilImgPop(constantes.IMG_MALLE_FIRST)
+
+    screenmanager.click(click_pos)
+    waitUntilImgPop(constantes.IMG_MALLE_SECOND)
+
+def goToTakeHunt():
+    screenmanager.clickInsideMalleDoor()
+    waitUntilImgPop(constantes.IMG_INSIDE_MALLE_COULOIR)
+
+    screenmanager.clickOnMalleSecondMap()
+    waitUntilImgPop(constantes.IMG_INSIDE_MALLE_SALLE)
+
+def takeHunt():
+    screenmanager.clickOnNewMissions()
+    screenmanager.clickOnLevelMission()
+
+def getOut():
+    screenmanager.getOut()
+    waitUntilImgPop(constantes.IMG_INSIDE_MALLE_COULOIR)
+    
+    screenmanager.getOut()
+    waitUntilImgPop(constantes.IMG_MALLE_SECOND)
+    
+    keyboardmanager.goToHavreSac()
+
 '''
     A l'appel de cette fonction on est au zaap champs de cania
     donc on doit : 
@@ -59,20 +110,11 @@ def moveClassic(direction, length, pos):
         clicker sur le lvl
         sortir de la maison
 '''
-def getHunt(pos):
-    pos = moveClassic('right', 2, pos)
-    screenmanager.clickInsideMalleDoor()
-    time.sleep(4)
-    screenmanager.clickOnMalleSecondMap()
-    time.sleep(4)
-    screenmanager.clickOnNewMissions()
-    screenmanager.clickOnLevelMission()
-    screenmanager.getOut()
-    time.sleep(4)
-    screenmanager.getOut()
-    time.sleep(4)
-    keyboardmanager.goToHavreSac()
-    time.sleep(1)
+def getHunt():
+    goToMalle()
+    goToTakeHunt()
+    takeHunt()
+    getOut()
     
 
     

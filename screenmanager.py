@@ -26,13 +26,19 @@ def moveMouse(pos):
     pyautogui.moveTo(pos)
 
 def getCurrentPos():
-    pos = (15,68,86,31)
+    pos = (15,68,84,31)
     takeScreenshot(pos)
-    print(imgToText(constantes.TMP_SCREENSHOT))
-    x = imgToText(constantes.TMP_SCREENSHOT).split(',')[0]
-    y = imgToText(constantes.TMP_SCREENSHOT).split(',')[1]
-    print(x,y)
-    return (x,y)
+    coord = imgToText(constantes.TMP_SCREENSHOT,True).split(',')[:2]
+
+    x = int(coord[0])
+    y = int(coord[1].replace('|',''))
+
+    #EXCEPTIONS
+    x = -77 if x == -717 else x
+
+    print("pos : ")
+    print([x,y])
+    return [x,y]
 
 def getMainRegion():
     pos = pyautogui.locateCenterOnScreen(constantes.IMG_CHASSE_TRESOR)
@@ -80,24 +86,7 @@ def getHint(pos_hint):
     region = (left, top, width, height)
 
     takeScreenshot(region)
-    return imgToText(constantes.TMP_SCREENSHOT)
-
-def getRightPos():
-    screen = pyautogui.size()
-    return (screen.width * 0.9, (screen.height * 0.5) + random.randint(-RANDOM_RANGE,RANDOM_RANGE))
-    
-
-def getLeftPos():
-    screen = pyautogui.size()
-    return (screen.width * 0.1, (screen.height * 0.5) + random.randint(-RANDOM_RANGE,RANDOM_RANGE))
-
-def getTopPos():
-    screen = pyautogui.size()
-    return ((screen.width * 0.5) + random.randint(-RANDOM_RANGE,RANDOM_RANGE), 31) 
-
-def getBottomPos():
-    screen = pyautogui.size()
-    return ((screen.width * 0.5) + random.randint(0,RANDOM_RANGE), screen.height - 160)
+    return imgToText(constantes.TMP_SCREENSHOT,False)
 
 def validFlag(pos):
     pyautogui.click(pos[0] + 12, pos[1] + 12)
@@ -113,18 +102,6 @@ def goTonextStep(region):
     if pos != None:
         print("in")
         pyautogui.click(pos[0] + 5, pos[1] + 5)
-
-def getBworkPos():
-    screen = pyautogui.size()
-    return (screen.width * 0.4, screen.height * 0.5)
-
-def getDragoeufsToDesacrees():
-    screen = pyautogui.size()
-    return (screen.width * 0.2, screen.height * 0.5)
-
-def getBworkPosOut():
-    screen = pyautogui.size()
-    return (screen.width * 0.60, screen.height * 0.4)
 
 def getPosPopo():
     screen = pyautogui.size()
@@ -171,5 +148,58 @@ def getOut():
     screen = pyautogui.size()
     pos = (screen.width * 0.19, screen.height * 0.77)
     pyautogui.click(pos)
+
+#----------Deplacements----------#
+
+def getRightPos():
+    screen = pyautogui.size()
+    return [screen.width * 0.9, (screen.height * 0.5) + random.randint(-RANDOM_RANGE,RANDOM_RANGE)]
     
-    
+def getLeftPos():
+    screen = pyautogui.size()
+    return [screen.width * 0.1, (screen.height * 0.5) + random.randint(-RANDOM_RANGE,RANDOM_RANGE)]
+
+def getTopPos():
+    screen = pyautogui.size()
+    return [(screen.width * 0.5) + random.randint(-RANDOM_RANGE,RANDOM_RANGE), 31]
+
+def getBottomPos():
+    screen = pyautogui.size()
+    return [(screen.width * 0.5) + random.randint(0,RANDOM_RANGE), screen.height - 160]
+ 
+'''
+    Exception lors des déplacements sur la map
+'''
+
+def getBworkPos():
+    screen = pyautogui.size()
+    return [screen.width * 0.4, screen.height * 0.5]
+
+def getDragoeufsToDesacrees():
+    screen = pyautogui.size()
+    return [screen.width * 0.2, screen.height * 0.5]
+
+def getDesacreesToDragoeuf():
+    screen = pyautogui.size()
+    return [screen.width * 0.75, screen.height * 0.75]
+
+def getBworkPosOut():
+    screen = pyautogui.size()
+    return [screen.width * 0.60, screen.height * 0.4]
+
+def getLeftPosMadrestam(pos):
+    if pos == [8,4]:
+        screen = pyautogui.size()
+        return [screen.width * 0.1, (screen.height * 0.6) + random.randint(0,RANDOM_RANGE)]
+    elif pos == [13,-1]:
+        screen = pyautogui.size()
+        return [screen.width * 0.1, (screen.height * 0.1)]
+
+def getPosGoToCalanques():
+    screen = pyautogui.size()
+    return [screen.width * 0.75, screen.height * 0.15]
+
+def getHighRightPos():
+    screen = pyautogui.size()
+    return [screen.width * 0.9, screen.height * 0.1]
+  

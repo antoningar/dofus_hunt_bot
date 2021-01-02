@@ -1,5 +1,13 @@
 import winsound
 
+DURATION = 250
+
 def beep(frequency):
-    duration = 250
-    winsound.Beep(frequency, duration)
+    winsound.Beep(frequency, DURATION)
+
+def beepFight():
+    beep(4000)
+
+def beepPhorreur():
+    beep(1000)
+    beep(1000)
